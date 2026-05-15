@@ -1,6 +1,8 @@
 const db = require('../models/sql');
 const { successResponse, errorResponse } = require('../utils/response');
 
+const ALLOWED_ROLES = ['admin', 'ketua', 'staf'];
+
 function sanitizeUser(user) {
   return {
     id: user.id,
@@ -84,6 +86,41 @@ async function updateUser(req, res, next) {
   }
 }
 
+async function updateUserRole(req, res, next) {
+  try {
+    const userId = req.params.id;
+    const { role } = req.body;
+
+    if (!role) {
+      return errorResponse(res, { message: 'Role wajib diisi', statusCode: 400 });
+    }
+
+    if (!ALLOWED_ROLES.includes(role)) {
+      return errorResponse(res, {
+        message: 'Role tidak valid',
+        statusCode: 400,
+        errors: [{ field: 'role', message: 'Role harus admin, ketua, atau staf' }],
+      });
+    }
+
+    const user = await db.User.findByPk(userId);
+    if (!user) {
+      return errorResponse(res, { message: 'User tidak ditemukan', statusCode: 404 });
+    }
+
+    await user.update({ role });
+
+    const refreshed = await db.User.findByPk(userId);
+    return successResponse(res, {
+      message: 'Role user berhasil diperbarui',
+      data: { user: sanitizeUser(refreshed) },
+      statusCode: 200,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function deleteUser(req, res, next) {
   try {
     const userId = req.params.id;
@@ -99,4 +136,4 @@ async function deleteUser(req, res, next) {
   }
 }
 
-module.exports = { listUsers, getUserById, updateUser, deleteUser };
+module.exports = { listUsers, getUserById, updateUser, updateUserRole, deleteUser };

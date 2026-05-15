@@ -46,62 +46,12 @@ Gunakan JWT token di header:
 Authorization: Bearer <token>
 ```
 
-### Auth Endpoints
-- `POST /auth/register` - Register user baru
-- `POST /auth/login` - Login dan dapatkan token
-- `GET /auth/me` - Get profile user (protected)
-- `POST /auth/logout` - Logout dan invalidate token
+Semua request JSON menggunakan header:
+```http
+Content-Type: application/json
+```
 
-### User Management
-- `GET /users` - List semua user (admin/ketua only)
-- `GET /users/:id` - Get detail user
-- `PUT /users/:id` - Update user profile
-- `DELETE /users/:id` - Delete user (admin only)
-
-### Event CRUD
-- `POST /events` - Create event baru (admin/ketua)
-- `GET /events` - List semua events
-- `GET /events/:id` - Get event detail + statistics
-- `PUT /events/:id` - Update event (admin/ketua)
-- `DELETE /events/:id` - Delete event (admin)
-
-### Vendor Management (per Event)
-- `POST /events/:id/vendors` - Add vendor ke event
-- `GET /events/:id/vendors` - List vendor per event
-- `GET /vendors/:id` - Get vendor detail
-- `PUT /vendors/:id` - Update vendor
-- `DELETE /vendors/:id` - Delete vendor
-
-### Rundown Management
-- `POST /events/:id/rundowns` - Create rundown untuk event
-- `GET /events/:id/rundowns` - List rundown per event (sorted by urutan)
-- `PUT /rundowns/:id` - Update rundown
-- `DELETE /rundowns/:id` - Delete rundown
-
-### Task Management (Tugas)
-- `POST /events/:id/tugas` - Create task untuk event
-- `GET /events/:id/tugas` - List tasks per event
-- `GET /tugas/:id` - Get task detail
-- `PUT /tugas/:id` - Update task
-- `PATCH /tugas/:id/status` - Update task status
-- `DELETE /tugas/:id` - Delete task
-
-### Report (Laporan)
-- `POST /events/:id/laporan` - Create report untuk event
-- `GET /events/:id/laporan` - List reports per event
-
-### File Upload
-- `POST /upload` - Upload file (protected)
-
-## Default Demo Users
-
-| Email | Password | Role |
-|-------|----------|------|
-| admin@eventsync.local | admin123 | admin |
-| ketua@eventsync.local | ketua123 | ketua |
-| staf@eventsync.local | staf123 | staf |
-
-## Response Format
+### Response Format
 
 ### Success Response
 ```json
@@ -123,6 +73,125 @@ Authorization: Bearer <token>
   ]
 }
 ```
+
+## Frontend API Reference
+
+### 1. Auth Endpoints
+
+| Method | Endpoint | Auth | Body |
+|---|---|---|---|
+| POST | `/auth/register` | No | `name`, `email`, `password`, `role`, `divisi?`, `phone?`, `avatar_url?` |
+| POST | `/auth/login` | No | `email`, `password` |
+| GET | `/auth/me` | Yes | - |
+| POST | `/auth/logout` | Yes | - |
+
+Contoh payload login:
+```json
+{
+  "email": "admin@eventsync.local",
+  "password": "admin123"
+}
+```
+
+Contoh response login:
+```json
+{
+  "success": true,
+  "message": "Login berhasil",
+  "data": {
+    "token": "jwt-token",
+    "expires_in": "24h",
+    "user": {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@eventsync.local",
+      "role": "admin"
+    }
+  }
+}
+```
+
+### 2. User Management
+
+| Method | Endpoint | Auth | Role | Body |
+|---|---|---|---|---|
+| GET | `/users` | Yes | `admin`, `ketua` | - |
+| GET | `/users/:id` | Yes | Auth only | - |
+| PUT | `/users/:id` | Yes | `admin`, `ketua` | `name?`, `phone?`, `avatar_url?`, `divisi?`, `is_active?` |
+| DELETE | `/users/:id` | Yes | `admin` | - |
+
+### 3. Event Management
+
+| Method | Endpoint | Auth | Role | Body |
+|---|---|---|---|---|
+| POST | `/events` | Yes | `admin`, `ketua` | `nama_event`, `deskripsi?`, `lokasi?`, `tanggal_mulai`, `tanggal_selesai`, `status?`, `ketua_id?` |
+| GET | `/events` | Yes | Auth only | - |
+| GET | `/events/:id` | Yes | Auth only | - |
+| PUT | `/events/:id` | Yes | `admin`, `ketua` | `nama_event?`, `deskripsi?`, `lokasi?`, `tanggal_mulai?`, `tanggal_selesai?`, `status?`, `ketua_id?` |
+| DELETE | `/events/:id` | Yes | `admin` | - |
+
+### 4. Vendor Management
+
+| Method | Endpoint | Auth | Role | Body |
+|---|---|---|---|---|
+| POST | `/events/:id/vendors` | Yes | `admin`, `ketua` | `nama_vendor`, `kategori?`, `kontak_person?`, `telepon?`, `email?`, `alamat?`, `kontrak_url?`, `status?`, `catatan?` |
+| GET | `/events/:id/vendors` | Yes | Auth only | - |
+| GET | `/vendors/:id` | Yes | Auth only | - |
+| PUT | `/vendors/:id` | Yes | Auth only | `nama_vendor?`, `kategori?`, `kontak_person?`, `telepon?`, `email?`, `alamat?`, `kontrak_url?`, `status?`, `catatan?` |
+| DELETE | `/vendors/:id` | Yes | Auth only | - |
+
+### 5. Rundown Management
+
+| Method | Endpoint | Auth | Role | Body |
+|---|---|---|---|---|
+| POST | `/events/:id/rundowns` | Yes | `admin`, `ketua` | `urutan`, `waktu_mulai`, `waktu_selesai?`, `judul_sesi`, `deskripsi?`, `pic_id?`, `vendor_id?`, `status?` |
+| GET | `/events/:id/rundowns` | Yes | Auth only | - |
+| PUT | `/rundowns/:id` | Yes | Auth only | `urutan?`, `waktu_mulai?`, `waktu_selesai?`, `judul_sesi?`, `deskripsi?`, `pic_id?`, `vendor_id?`, `status?` |
+| DELETE | `/rundowns/:id` | Yes | Auth only | - |
+
+### 6. Task Management (Tugas)
+
+| Method | Endpoint | Auth | Role | Body |
+|---|---|---|---|---|
+| POST | `/events/:id/tugas` | Yes | `admin`, `ketua` | `judul`, `deskripsi?`, `assignee_id`, `divisi?`, `prioritas?`, `status?`, `deadline?`, `lampiran_url?`, `catatan?`, `rundown_id?` |
+| GET | `/events/:id/tugas` | Yes | Auth only | - |
+| GET | `/tugas/:id` | Yes | Auth only | - |
+| PUT | `/tugas/:id` | Yes | Auth only | `judul?`, `deskripsi?`, `assignee_id?`, `divisi?`, `prioritas?`, `status?`, `deadline?`, `lampiran_url?`, `catatan?` |
+| PATCH | `/tugas/:id/status` | Yes | Auth only | `status`, `catatan?` |
+| DELETE | `/tugas/:id` | Yes | Auth only | - |
+
+### 7. Laporan
+
+| Method | Endpoint | Auth | Role | Body |
+|---|---|---|---|---|
+| POST | `/events/:id/laporan` | Yes | `admin`, `ketua` | `judul`, `konten`, `file_url?`, `tanggal?` |
+| GET | `/events/:id/laporan` | Yes | `admin`, `ketua` | - |
+
+### 8. File Upload
+
+| Method | Endpoint | Auth | Body |
+|---|---|---|---|
+| POST | `/upload` | Yes | multipart file upload |
+
+Response upload mengembalikan objek `file` dengan `filename`, `originalname`, `mimetype`, `size`, dan `url`.
+
+### 9. Default Frontend Flow
+
+1. Login via `/auth/login` dan simpan JWT token.
+2. Kirim token di header `Authorization: Bearer <token>` untuk semua request protected.
+3. Ambil profile user dari `/auth/me` untuk menentukan role frontend.
+4. Load dashboard event via `/events` dan `/events/:id`.
+5. Untuk detail event, panggil endpoint nested seperti `/events/:id/vendors`, `/events/:id/rundowns`, `/events/:id/tugas`, dan `/events/:id/laporan`.
+6. Untuk update task status staf, gunakan `PATCH /tugas/:id/status`.
+7. Untuk upload file lampiran, gunakan `POST /upload` lalu simpan URL ke field `*_url` sesuai kebutuhan form.
+
+## Default Demo Users
+
+| Email | Password | Role |
+|-------|----------|------|
+| admin@eventsync.local | admin123 | admin |
+| ketua@eventsync.local | ketua123 | ketua |
+| staf@eventsync.local | staf123 | staf |
 
 ## Project Structure
 
