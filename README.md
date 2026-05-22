@@ -241,6 +241,8 @@ curl -X PATCH http://localhost:8080/api/v1/tugas/1/status ^
   -d "{\"status\":\"selesai\",\"catatan\":\"Sudah diverifikasi\"}"
 ```
 
+Kalau kamu mau cek satu per satu secara manual, pakai juga [TEST_ENDPOINT_CHECKLIST.md](TEST_ENDPOINT_CHECKLIST.md) sebagai checklist.
+
 ## Default Demo Users
 
 | Email | Password | Role |
