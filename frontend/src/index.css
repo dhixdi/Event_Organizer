@@ -1,23 +1,132 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html { @apply bg-background text-text-base font-body; }
-  * { @apply border-white/10; }
+  html {
+    @apply bg-background text-text-base font-body;
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { @apply bg-background; }
-  ::-webkit-scrollbar-thumb { @apply bg-primary/60 rounded-full; }
+  * {
+    @apply border-border;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-border-light;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-text-light rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-muted;
+  }
+}
+
+@layer components {
+  /* ─── Cards ─────────────────────────────── */
+  .card {
+    @apply bg-surface rounded-2xl shadow-card border border-border-light p-6 transition-all duration-200;
+  }
+  .card-hover {
+    @apply card hover:shadow-card-md hover:-translate-y-0.5 cursor-pointer;
+  }
+
+  /* ─── Buttons ────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-primary hover:bg-primary-dark text-white shadow-primary hover:shadow-none focus:ring-primary;
+  }
+  .btn-secondary {
+    @apply btn bg-secondary hover:bg-secondary-dark text-text-base focus:ring-secondary;
+  }
+  .btn-accent {
+    @apply btn bg-accent hover:bg-accent-dark text-white focus:ring-accent;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent hover:bg-surface-2 text-text-muted hover:text-text-base border border-border;
+  }
+  .btn-danger {
+    @apply btn bg-danger hover:bg-red-600 text-white focus:ring-danger;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs rounded-lg;
+  }
+  .btn-lg {
+    @apply px-6 py-3 text-base rounded-2xl;
+  }
+
+  /* ─── Inputs ─────────────────────────────── */
+  .input {
+    @apply w-full px-4 py-2.5 bg-surface border border-border rounded-xl text-text-base text-sm placeholder:text-text-light focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-150;
+  }
+  .input-error {
+    @apply border-danger focus:ring-danger/30 focus:border-danger;
+  }
+  .label {
+    @apply block text-sm font-medium text-text-muted mb-1.5;
+  }
+
+  /* ─── Status pill ────────────────────────── */
+  .pill {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize;
+  }
+
+  /* ─── Section ────────────────────────────── */
+  .section-title {
+    @apply text-lg font-display font-semibold text-text-base;
+  }
+
+  /* ─── Sidebar link ───────────────────────── */
+  .nav-link {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-text-muted hover:text-text-base hover:bg-surface-2 transition-all duration-150;
+  }
+  .nav-link-active {
+    @apply bg-primary-bg text-primary font-semibold;
+  }
+
+  /* ─── Divider ────────────────────────────── */
+  .divider {
+    @apply border-t border-border-light my-4;
+  }
+
+  /* ─── Tab ────────────────────────────────── */
+  .tab {
+    @apply px-4 py-2 text-sm font-medium border-b-2 border-transparent text-text-muted hover:text-text-base hover:border-border transition-all;
+  }
+  .tab-active {
+    @apply border-primary text-primary;
+  }
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  .text-gradient {
+    background: linear-gradient(135deg, #FF4D6D, #FF8FA3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
-  .glow {
-    box-shadow: 0 0 20px rgba(124,58,237,0.3);
+  .bg-warm-gradient {
+    background: linear-gradient(135deg, #FFF8F0 0%, #FFF0F3 100%);
+  }
+  .ring-primary-soft {
+    @apply ring-2 ring-primary/20;
+  }
+  .animate-in {
+    @apply animate-fade-in;
   }
 }

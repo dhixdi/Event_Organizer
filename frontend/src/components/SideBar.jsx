@@ -1,15 +1,23 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const NAV = [
-  { to: '/dashboard',     label: 'Dashboard',    icon: '⚡', roles: [] },
-  { to: '/events',        label: 'Events',       icon: '📅', roles: [] },
-  { to: '/notifications', label: 'Notifikasi',   icon: '🔔', roles: [] },
-  { to: '/users',         label: 'Users',        icon: '👥', roles: ['admin', 'ketua'] },
+const NAV_ITEMS = [
+  { to: '/dashboard',    label: 'Dashboard',    icon: '⊞',   roles: [] },
+  { to: '/events',       label: 'Events',        icon: '📅',  roles: [] },
+  { to: '/tugas',        label: 'Tugas Saya',    icon: '✅',  roles: ['staf'] },
+  { to: '/users',        label: 'Users',         icon: '👥',  roles: ['admin', 'ketua'] },
+  { to: '/notifikasi',   label: 'Notifikasi',    icon: '🔔',  roles: [] },
 ];
 
+const ROLE_LABEL = { admin: 'Administrator', ketua: 'Ketua Panitia', staf: 'Staf EO' };
+const ROLE_COLOR = {
+  admin: 'bg-primary-bg text-primary',
+  ketua: 'bg-accent-bg text-accent',
+  staf:  'bg-secondary-bg text-secondary-dark',
+};
+
 export default function Sidebar() {
-  const { user, logout, canManage } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -17,57 +25,71 @@ export default function Sidebar() {
     navigate('/login');
   };
 
-  const visibleNav = NAV.filter(n => !n.roles.length || n.roles.includes(user?.role));
+  const visibleNav = NAV_ITEMS.filter(
+    n => !n.roles.length || n.roles.includes(user?.role)
+  );
+
+  const initials = user?.name
+    ?.split(' ')
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || '?';
 
   return (
-    <aside className="w-64 min-h-screen glass border-r border-white/10 flex flex-col">
+    <aside className="w-64 shrink-0 min-h-screen bg-surface border-r border-border-light flex flex-col">
       {/* Logo */}
-      <div className="p-6 border-b border-white/10">
+      <div className="px-5 py-5 border-b border-border-light">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center glow">
-            <span className="text-lg">⚡</span>
+          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-primary shrink-0">
+            <span className="text-white font-display font-bold text-base">E</span>
           </div>
           <div>
-            <h1 className="font-display font-bold text-text-base">EventSync</h1>
-            <p className="text-xs text-muted">Koordinasi Panitia</p>
+            <h1 className="font-display font-bold text-text-base text-base leading-tight">EventSync</h1>
+            <p className="text-[10px] text-text-light font-medium uppercase tracking-wider">Koordinasi Acara</p>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-4 space-y-1">
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-light">Menu</p>
         {visibleNav.map(({ to, label, icon }) => (
           <NavLink
-            key={to} to={to}
+            key={to}
+            to={to}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                isActive
-                  ? 'bg-primary text-white glow'
-                  : 'text-muted hover:text-text-base hover:bg-white/5'
-              }`
+              `nav-link ${isActive ? 'nav-link-active' : ''}`
             }
           >
-            <span>{icon}</span>{label}
+            <span className="w-5 text-center text-base">{icon}</span>
+            <span>{label}</span>
           </NavLink>
         ))}
       </nav>
 
-      {/* User info */}
-      <div className="p-4 border-t border-white/10">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center text-sm font-bold text-primary">
-            {user?.name?.[0]?.toUpperCase()}
+      {/* User Section */}
+      <div className="px-3 pb-4 border-t border-border-light pt-4 space-y-2">
+        {/* User info card */}
+        <div className="bg-background rounded-2xl p-3 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-primary-bg flex items-center justify-center font-display font-bold text-primary text-sm shrink-0">
+            {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-text-base truncate">{user?.name}</p>
-            <p className="text-xs text-muted capitalize">{user?.role}</p>
+            <p className="text-sm font-semibold text-text-base truncate">{user?.name}</p>
+            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${ROLE_COLOR[user?.role]}`}>
+              {ROLE_LABEL[user?.role] || user?.role}
+            </span>
           </div>
         </div>
+
+        {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-left"
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-danger/80 hover:bg-danger-bg hover:text-danger transition-colors"
         >
-          → Logout
+          <span>→</span>
+          <span>Keluar</span>
         </button>
       </div>
     </aside>

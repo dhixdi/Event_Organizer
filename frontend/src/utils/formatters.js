@@ -1,27 +1,85 @@
 export const formatDate = (d) =>
-  d ? new Date(d).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' }) : '-';
+  d ? new Date(d).toLocaleDateString('id-ID', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  }) : '-';
 
 export const formatDateTime = (d) =>
-  d ? new Date(d).toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '-';
+  d ? new Date(d).toLocaleString('id-ID', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }) : '-';
 
+export const formatDateShort = (d) =>
+  d ? new Date(d).toLocaleDateString('id-ID', {
+    day: '2-digit', month: 'short'
+  }) : '-';
+
+export const formatRelative = (d) => {
+  if (!d) return '-';
+  const date = new Date(d);
+  const now = new Date();
+  const diff = now - date;
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 1) return 'Baru saja';
+  if (mins < 60) return `${mins} menit lalu`;
+  if (hours < 24) return `${hours} jam lalu`;
+  if (days < 7) return `${days} hari lalu`;
+  return formatDate(d);
+};
+
+/* ─── Status Color Map ─────────────────── */
 export const STATUS_COLORS = {
-  aktif:       'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  draft:       'bg-slate-500/20 text-slate-400 border-slate-500/30',
-  selesai:     'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  batal:       'bg-red-500/20 text-red-400 border-red-500/30',
-  belum:       'bg-slate-500/20 text-slate-400 border-slate-500/30',
-  proses:      'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  terkendala:  'bg-red-500/20 text-red-400 border-red-500/30',
-  berjalan:    'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
-  ditunda:     'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  rendah:      'bg-slate-500/20 text-slate-400 border-slate-500/30',
-  sedang:      'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  tinggi:      'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  kritis:      'bg-red-500/20 text-red-400 border-red-500/30',
+  // Event status
+  aktif:      'bg-success/10 text-success border border-success/20',
+  draft:      'bg-text-light/10 text-text-muted border border-border',
+  selesai:    'bg-accent-bg text-accent border border-accent/20',
+  batal:      'bg-danger-bg text-danger border border-danger/20',
+
+  // Task status
+  belum:      'bg-border-light text-text-muted border border-border',
+  proses:     'bg-secondary-bg text-secondary-dark border border-secondary/30',
+  terkendala: 'bg-danger-bg text-danger border border-danger/20',
+
+  // Rundown status
+  berjalan:   'bg-primary-bg text-primary border border-primary/20',
+  ditunda:    'bg-warning-bg text-warning border border-warning/20',
+
+  // Vendor status
+  // aktif → same as event
+
+  // Priority
+  rendah:     'bg-border-light text-text-muted border border-border',
+  sedang:     'bg-accent-bg text-accent border border-accent/20',
+  tinggi:     'bg-secondary-bg text-secondary-dark border border-secondary/30',
+  kritis:     'bg-danger-bg text-danger border border-danger/20',
 };
 
 export const ROLE_COLORS = {
-  admin: 'bg-primary/20 text-primary border-primary/30',
-  ketua: 'bg-secondary/20 text-secondary border-secondary/30',
-  staf:  'bg-accent/20 text-accent border-accent/30',
+  admin:  'bg-primary-bg text-primary border border-primary/20',
+  ketua:  'bg-accent-bg text-accent border border-accent/20',
+  staf:   'bg-secondary-bg text-secondary-dark border border-secondary/30',
+};
+
+export const ROLE_ICONS = {
+  admin: '👑',
+  ketua: '🎯',
+  staf:  '⚡',
+};
+
+export const STATUS_ICONS = {
+  aktif:      '🟢',
+  draft:      '📝',
+  selesai:    '✅',
+  batal:      '❌',
+  belum:      '⏳',
+  proses:     '🔄',
+  terkendala: '⚠️',
+  berjalan:   '▶️',
+  ditunda:    '⏸️',
+  rendah:     '↓',
+  sedang:     '→',
+  tinggi:     '↑',
+  kritis:     '🔴',
 };

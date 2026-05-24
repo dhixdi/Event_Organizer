@@ -2,24 +2,28 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 
+const DIVISI_OPTIONS = ['Dekorasi', 'Catering', 'Sound System', 'Dokumentasi', 'Keamanan', 'Transportasi', 'Perlengkapan', 'Acara', 'Humas'];
+
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: '', email: '', password: '', divisi: '', phone: '',
   });
   const [error, setError]     = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   const handleChange = (e) =>
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
+    setError(''); setSuccess(''); setLoading(true);
     try {
       await authService.register({ ...form, role: 'staf' });
-      navigate('/login', { state: { registered: true } });
+      setSuccess('Akun berhasil dibuat! Silakan login.');
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Registrasi gagal');
     } finally {
@@ -28,64 +32,88 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary mb-4 glow">
-            <span className="text-3xl">⚡</span>
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="w-full max-w-md animate-slide-up">
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-primary">
+            <span className="text-white font-display font-bold">E</span>
           </div>
-          <h1 className="text-3xl font-display font-bold text-text-base">EventSync</h1>
-          <p className="text-muted mt-1">Daftar sebagai Staf EO</p>
+          <span className="font-display font-bold text-text-base text-lg">EventSync</span>
         </div>
 
-        <div className="glass rounded-2xl p-8">
-          <h2 className="text-xl font-display font-semibold text-text-base mb-6">Buat Akun</h2>
+        <div className="bg-surface rounded-3xl shadow-card-lg border border-border-light p-8">
+          <h2 className="font-display font-bold text-text-base text-2xl mb-1">Buat Akun Baru</h2>
+          <p className="text-text-muted text-sm mb-6">Daftar sebagai Staf EO untuk mulai berkoordinasi</p>
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
-              {error}
+            <div className="mb-4 p-3 rounded-xl bg-danger-bg border border-danger/20 text-danger text-sm">
+              ⚠️ {error}
+            </div>
+          )}
+          {success && (
+            <div className="mb-4 p-3 rounded-xl bg-success-bg border border-success/20 text-success text-sm">
+              ✅ {success}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {[
-              { name: 'name',     label: 'Nama Lengkap', type: 'text',     required: true,  placeholder: 'John Doe' },
-              { name: 'email',    label: 'Email',        type: 'email',    required: true,  placeholder: 'john@example.com' },
-              { name: 'password', label: 'Password',     type: 'password', required: true,  placeholder: 'Min. 6 karakter' },
-              { name: 'divisi',   label: 'Divisi',       type: 'text',     required: false, placeholder: 'Contoh: Sound System' },
-              { name: 'phone',    label: 'No. Telepon',  type: 'tel',      required: false, placeholder: '08xxxxxxxxxx' },
-            ].map(f => (
-              <div key={f.name}>
-                <label className="block text-sm font-medium text-muted mb-1.5">
-                  {f.label} {!f.required && <span className="text-muted/50">(opsional)</span>}
-                </label>
-                <input
-                  type={f.type} name={f.name} value={form[f.name]}
-                  onChange={handleChange} required={f.required}
-                  placeholder={f.placeholder}
-                  className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-text-base placeholder:text-muted/50 focus:outline-none focus:border-primary/60 focus:bg-white/10 transition-all"
-                />
-              </div>
-            ))}
+            <div>
+              <label className="label">Nama Lengkap *</label>
+              <input name="name" value={form.name} onChange={handleChange}
+                placeholder="John Doe" required className="input" />
+            </div>
 
-            <button
-              type="submit" disabled={loading}
-              className="w-full py-2.5 bg-primary hover:bg-primary/80 disabled:opacity-50 rounded-lg font-medium text-white transition-all glow mt-2"
-            >
-              {loading ? 'Mendaftar...' : 'Daftar Sekarang'}
+            <div>
+              <label className="label">Email *</label>
+              <input type="email" name="email" value={form.email} onChange={handleChange}
+                placeholder="john@contoh.com" required className="input" />
+            </div>
+
+            <div>
+              <label className="label">Password *</label>
+              <div className="relative">
+                <input
+                  type={showPass ? 'text' : 'password'}
+                  name="password" value={form.password} onChange={handleChange}
+                  placeholder="Min. 6 karakter" required minLength={6}
+                  className="input pr-12"
+                />
+                <button type="button" onClick={() => setShowPass(s=>!s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-light hover:text-text-muted text-sm">
+                  {showPass ? '🙈' : '👁️'}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">Divisi</label>
+                <select name="divisi" value={form.divisi} onChange={handleChange} className="input">
+                  <option value="">Pilih divisi</option>
+                  {DIVISI_OPTIONS.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="label">No. Telepon</label>
+                <input name="phone" value={form.phone} onChange={handleChange}
+                  placeholder="08xx" className="input" />
+              </div>
+            </div>
+
+            <button type="submit" disabled={loading} className="btn-primary btn-lg w-full mt-2">
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Mendaftarkan...
+                </span>
+              ) : 'Daftar Sekarang'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-muted mt-6">
+          <p className="text-center text-sm text-text-muted mt-4">
             Sudah punya akun?{' '}
-            <Link to="/login" className="text-primary hover:text-secondary transition-colors font-medium">
-              Masuk
-            </Link>
+            <Link to="/login" className="text-primary font-semibold hover:underline">Masuk</Link>
           </p>
         </div>
       </div>

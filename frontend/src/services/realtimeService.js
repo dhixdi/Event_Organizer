@@ -1,25 +1,37 @@
 import api from './api';
 
 export const realtimeService = {
-  // Checklist
-  createChecklist:      (data)        => api.post('/realtime/checklist', data),
-  listChecklist:        (eventId)     => api.get(`/realtime/events/${eventId}/checklist`),
-  updateChecklistStatus:(id, data)    => api.patch(`/realtime/checklist/${id}/status`, data),
+  // ─── Notifications ───────────────────────────
+  getMyNotifications: (params) =>
+    api.get('/realtime/notifikasi/me', { params }),
+  markNotifRead: (id) =>
+    api.patch(`/realtime/notifikasi/${id}/read`),
+  createNotification: (data) =>
+    api.post('/realtime/notifikasi', data),
 
-  // Chat
-  sendMessage:          (data)        => api.post('/realtime/chat/messages', data),
-  listChat:             (eventId, params) => api.get(`/realtime/events/${eventId}/chat`, { params }),
+  // ─── Chat ─────────────────────────────────────
+  getChatByEvent: (eventId, params) =>
+    api.get(`/realtime/events/${eventId}/chat`, { params }),
+  sendMessage: (data) =>
+    api.post('/realtime/chat/messages', data),
 
-  // Notifikasi
-  listMyNotifications:  (params)      => api.get('/realtime/notifikasi/me', { params }),
-  markNotifRead:        (id)          => api.patch(`/realtime/notifikasi/${id}/read`),
-  createNotifikasi:     (data)        => api.post('/realtime/notifikasi', data),
+  // ─── Checklist ─────────────────────────────────
+  getChecklistByEvent: (eventId) =>
+    api.get(`/realtime/events/${eventId}/checklist`),
+  createChecklist: (data) =>
+    api.post('/realtime/checklist', data),
+  updateChecklistStatus: (id, data) =>
+    api.patch(`/realtime/checklist/${id}/status`, data),
 
-  // Rundown changes
-  createRundownChange:  (data)        => api.post('/realtime/rundown-changes', data),
-  listRundownChanges:   (eventId)     => api.get(`/realtime/events/${eventId}/rundown-changes`),
+  // ─── Rundown Changes ───────────────────────────
+  getRundownChanges: (eventId) =>
+    api.get(`/realtime/events/${eventId}/rundown-changes`),
+  createRundownChange: (data) =>
+    api.post('/realtime/rundown-changes', data),
 
-  // Logs
-  createLog:            (data)        => api.post('/realtime/logs', data),
-  listLogs:             (eventId)     => api.get(`/realtime/events/${eventId}/logs`),
+  // ─── Logs ─────────────────────────────────────
+  getLogsByEvent: (eventId) =>
+    api.get(`/realtime/events/${eventId}/logs`),
+  createLog: (data) =>
+    api.post('/realtime/logs', data),
 };
