@@ -9,6 +9,9 @@ import Events      from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import Users       from './pages/Users';
 import NotFound    from './pages/NotFound';
+import Register      from './pages/Register';
+import Notifications from './pages/Notifications';
+
 
 export default function App() {
   return (
@@ -23,6 +26,8 @@ export default function App() {
               <Route path="/dashboard"      element={<Dashboard />} />
               <Route path="/events"         element={<Events />} />
               <Route path="/events/:id"     element={<EventDetail />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/notifications" element={<Notifications />} />
               {/* Hanya admin & ketua */}
               <Route element={<PrivateRoute roles={['admin', 'ketua']} />}>
                 <Route path="/users" element={<Users />} />

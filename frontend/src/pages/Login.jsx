@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const { login } = useAuth();
@@ -83,11 +84,19 @@ export default function Login() {
           <div className="mt-6 p-4 rounded-lg bg-white/5 border border-white/5">
             <p className="text-xs text-muted font-medium mb-2">Demo Accounts:</p>
             <div className="space-y-1 text-xs font-mono">
-              <p><span className="text-primary">admin</span>@eventsync.local / admin123</p>
-              <p><span className="text-secondary">ketua</span>@eventsync.local / ketua123</p>
-              <p><span className="text-accent">staf</span>@eventsync.local / staf123</p>
+              <p><span className="text-primary">admin</span>@gmail.com / admin123</p>
+              <p><span className="text-secondary">ketua</span>@gmail.com / ketua123</p>
+              <p><span className="text-accent">staf</span>@gmail.com / staf123</p>
             </div>
           </div>
+
+          {/* Link ke register */}
+          <p className="text-center text-sm text-muted mt-4">
+            Belum punya akun?{' '}
+            <Link to="/register" className="text-primary hover:text-secondary transition-colors font-medium">
+              Daftar di sini
+            </Link>
+          </p>
         </div>
       </div>
     </div>

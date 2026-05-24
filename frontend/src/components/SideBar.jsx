@@ -2,9 +2,10 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const NAV = [
-  { to: '/dashboard', label: 'Dashboard', icon: '⚡', roles: [] },
-  { to: '/events',    label: 'Events',    icon: '📅', roles: [] },
-  { to: '/users',     label: 'Users',     icon: '👥', roles: ['admin', 'ketua'] },
+  { to: '/dashboard',     label: 'Dashboard',    icon: '⚡', roles: [] },
+  { to: '/events',        label: 'Events',       icon: '📅', roles: [] },
+  { to: '/notifications', label: 'Notifikasi',   icon: '🔔', roles: [] },
+  { to: '/users',         label: 'Users',        icon: '👥', roles: ['admin', 'ketua'] },
 ];
 
 export default function Sidebar() {
