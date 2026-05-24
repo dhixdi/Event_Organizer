@@ -1,0 +1,36 @@
+{
+  "development": {
+    "username": "DB_USER",
+    "password": "DB_PASSWORD",
+    "database": "eventsync_db",
+    "host": "DB_HOST",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "charset": "utf8mb4"
+    }
+  },
+  "test": {
+    "username": "DB_USER",
+    "password": "DB_PASSWORD",
+    "database": "eventsync_test",
+    "host": "DB_HOST",
+    "dialect": "mysql",
+    "dialectOptions": {
+      "charset": "utf8mb4"
+    }
+  },
+  "production": {
+    "username": "DB_USER",
+    "password": "DB_PASSWORD",
+    "database": "eventsync_db",
+    "host": "DB_HOST",
+    "port": 3306,
+    "dialect": "mysql",
+    "dialectOptions": {
+      "ssl": {
+        "require": false,
+        "rejectUnauthorized": false
+      }
+    }
+  }
+}

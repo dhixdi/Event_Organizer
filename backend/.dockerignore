@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+
+# Git
+.git
+.gitignore
+
+# Environment — JANGAN ikut ke image!
+.env
+.env.local
+.env.*.local
+
+# Cloud credentials — JANGAN ikut ke image!
+service-account.json
+serviceAccount.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+
+# Build output
+dist
+build
+
+# Docs (tidak perlu di container)
+*.md
+REQUIREMENTS*
+FRONTEND*
+PAGINATION*
+ROLE_ENDPOINTS*
+TECHNICAL_DEBT*
+TEST_ENDPOINT*
