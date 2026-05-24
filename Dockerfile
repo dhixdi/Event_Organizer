@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install semua deps (termasuk devDependencies untuk sequelize-cli)
-RUN npm ci
+RUN npm install
 
 # ─────────────────────────────────────────────────
 # Stage 2: Production image
