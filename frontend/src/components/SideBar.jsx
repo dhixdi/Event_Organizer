@@ -2,12 +2,13 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const NAV_ITEMS = [
-  { to: '/dashboard',   label: 'Dashboard',    icon: '⊞',  roles: [] },
-  { to: '/events',      label: 'Events',        icon: '📅', roles: [] },
-  { to: '/tugas',       label: 'Tugas Saya',    icon: '✅', roles: ['staf'] },       // staf only
-  { to: '/users',       label: 'Users',         icon: '👥', roles: ['admin', 'ketua'] },
-  { to: '/notifikasi',  label: 'Notifikasi',    icon: '🔔', roles: [] },
-  { to: '/profile',     label: 'Profil',        icon: '👤', roles: [] },              // ← TAMBAH
+  { to: '/dashboard',          label: 'Dashboard',    icon: '⊞',  roles: [] },
+  { to: '/events',             label: 'Events',        icon: '📅', roles: [] },
+  { to: '/tugas',              label: 'Tugas Saya',    icon: '✅', roles: ['staf'] },
+  { to: '/users',              label: 'Users',         icon: '👥', roles: ['admin', 'ketua'] },
+  { to: '/notifikasi/kirim',   label: 'Kirim Notif',   icon: '📢', roles: ['admin', 'ketua'] },
+  { to: '/notifikasi',         label: 'Notifikasi',    icon: '🔔', roles: [] },
+  { to: '/profile',            label: 'Profil',        icon: '👤', roles: [] },
 ];
 
 const ROLE_LABEL = { admin: 'Administrator', ketua: 'Ketua Panitia', staf: 'Staf EO' };
@@ -67,6 +68,16 @@ export default function Sidebar() {
             <span>{label}</span>
           </NavLink>
         ))}
+
+        {/* Chat quick links hanya muncul jika punya divisi (staf) */}
+        {user?.divisi && (
+          <>
+            <p className="px-3 mt-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-light">Komunikasi</p>
+            <div className="px-3 py-2 text-xs text-text-muted bg-surface-2 rounded-xl">
+              💬 Chat tersedia di halaman detail event
+            </div>
+          </>
+        )}
       </nav>
 
       {/* User Section */}
