@@ -1,12 +1,13 @@
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const NAV_ITEMS = [
-  { to: '/dashboard',    label: 'Dashboard',    icon: '⊞',   roles: [] },
-  { to: '/events',       label: 'Events',        icon: '📅',  roles: [] },
-  { to: '/tugas',        label: 'Tugas Saya',    icon: '✅',  roles: ['staf'] },
-  { to: '/users',        label: 'Users',         icon: '👥',  roles: ['admin', 'ketua'] },
-  { to: '/notifikasi',   label: 'Notifikasi',    icon: '🔔',  roles: [] },
+  { to: '/dashboard',   label: 'Dashboard',    icon: '⊞',  roles: [] },
+  { to: '/events',      label: 'Events',        icon: '📅', roles: [] },
+  { to: '/tugas',       label: 'Tugas Saya',    icon: '✅', roles: ['staf'] },       // staf only
+  { to: '/users',       label: 'Users',         icon: '👥', roles: ['admin', 'ketua'] },
+  { to: '/notifikasi',  label: 'Notifikasi',    icon: '🔔', roles: [] },
+  { to: '/profile',     label: 'Profil',        icon: '👤', roles: [] },              // ← TAMBAH
 ];
 
 const ROLE_LABEL = { admin: 'Administrator', ketua: 'Ketua Panitia', staf: 'Staf EO' };
@@ -70,8 +71,7 @@ export default function Sidebar() {
 
       {/* User Section */}
       <div className="px-3 pb-4 border-t border-border-light pt-4 space-y-2">
-        {/* User info card */}
-        <div className="bg-background rounded-2xl p-3 flex items-center gap-3">
+        <NavLink to="/profile" className="bg-background rounded-2xl p-3 flex items-center gap-3 hover:bg-surface-2 transition-colors">
           <div className="w-9 h-9 rounded-xl bg-primary-bg flex items-center justify-center font-display font-bold text-primary text-sm shrink-0">
             {initials}
           </div>
@@ -81,9 +81,8 @@ export default function Sidebar() {
               {ROLE_LABEL[user?.role] || user?.role}
             </span>
           </div>
-        </div>
+        </NavLink>
 
-        {/* Logout */}
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-danger/80 hover:bg-danger-bg hover:text-danger transition-colors"

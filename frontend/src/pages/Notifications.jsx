@@ -17,7 +17,7 @@ export default function Notifications() {
   const [loading, setLoading] = useState(true);
 
   const fetchNotifs = () => {
-    realtimeService.listMyNotifications()
+    realtimeService.getMyNotifications()
       .then(res => setNotifs(res.data.data.notifications))
       .catch(console.error)
       .finally(() => setLoading(false));
