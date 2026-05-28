@@ -1,0 +1,12 @@
+node_modules/
+src/
+public/
+.env
+.env.local
+.env.development
+*.md
+.gitignore
+vite.config.js
+tailwind.config.js
+postcss.config.js
+eslint.config.js

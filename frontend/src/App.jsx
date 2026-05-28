@@ -16,6 +16,8 @@ import Notifications       from './pages/Notifications';
 import Chat                from './pages/Chat';
 import Checklist           from './pages/Checklist';
 import BroadcastNotifikasi from './pages/BroadcastNotifikasi';
+import RundownChanges from './pages/RundownChanges';
+import KoordinasiLog  from './pages/KoordinasiLog';
 import NotFound            from './pages/NotFound';
 
 export default function App() {
@@ -43,6 +45,8 @@ export default function App() {
 
                 {/* Checklist realtime — semua role bisa akses */}
                 <Route path="/checklist/:eventId" element={<Checklist />} />
+                <Route path="/rundown-changes/:eventId" element={<RundownChanges />} />
+                <Route path="/koordinasi-log/:eventId"  element={<KoordinasiLog />} />
 
                 {/* Broadcast notif — admin & ketua only */}
                 <Route element={<PrivateRoute roles={['admin', 'ketua']} />}>

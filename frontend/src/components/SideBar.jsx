@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 const NAV_ITEMS = [
   { to: '/dashboard',          label: 'Dashboard',    icon: '⊞',  roles: [] },
   { to: '/events',             label: 'Events',        icon: '📅', roles: [] },
-  { to: '/tugas',              label: 'Tugas Saya',    icon: '✅', roles: ['staf'] },
+  { to: '/tugas',               label: 'Tugas Saya',   icon: '✅', roles: [] },
   { to: '/users',              label: 'Users',         icon: '👥', roles: ['admin', 'ketua'] },
   { to: '/notifikasi/kirim',   label: 'Kirim Notif',   icon: '📢', roles: ['admin', 'ketua'] },
   { to: '/notifikasi',         label: 'Notifikasi',    icon: '🔔', roles: [] },
