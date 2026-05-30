@@ -1,10 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+// Fix #5: Hapus filter roles: [] pada "Tugas Saya"
+// Admin/ketua juga bisa jadi assignee tugas, jadi semua role harus bisa akses
 const NAV_ITEMS = [
   { to: '/dashboard',          label: 'Dashboard',    icon: '⊞',  roles: [] },
   { to: '/events',             label: 'Events',        icon: '📅', roles: [] },
-  { to: '/tugas',               label: 'Tugas Saya',   icon: '✅', roles: [] },
+  { to: '/tugas',               label: 'Tugas Saya',   icon: '✅', roles: [] }, // Fix #5: sudah benar - semua role
   { to: '/users',              label: 'Users',         icon: '👥', roles: ['admin', 'ketua'] },
   { to: '/notifikasi/kirim',   label: 'Kirim Notif',   icon: '📢', roles: ['admin', 'ketua'] },
   { to: '/notifikasi',         label: 'Notifikasi',    icon: '🔔', roles: [] },
@@ -69,14 +71,27 @@ export default function Sidebar() {
           </NavLink>
         ))}
 
-        {/* Chat quick links hanya muncul jika punya divisi (staf) */}
-        {user?.divisi && (
-          <>
-            <p className="px-3 mt-4 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-light">Komunikasi</p>
-            <div className="px-3 py-2 text-xs text-text-muted bg-surface-2 rounded-xl">
-              💬 Chat tersedia di halaman detail event
-            </div>
-          </>
+        {/* Fix #1 & #2: Fitur Realtime — semua role bisa akses setelah masuk ke event */}
+        <div className="mt-4">
+          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-light">Koordinasi Realtime</p>
+          <p className="px-3 py-2 text-xs text-text-muted bg-surface-2 rounded-xl leading-relaxed">
+            💬 Chat, ✅ Checklist, 🔄 Perubahan Rundown, dan 📋 Log Koordinasi tersedia di halaman
+            <span className="font-semibold text-text-base"> Detail Event</span>.
+          </p>
+        </div>
+
+        {/* Admin/Ketua: link cepat ke fitur manajemen */}
+        {(user?.role === 'admin' || user?.role === 'ketua') && (
+          <div className="mt-4">
+            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-text-light">Manajemen</p>
+            <NavLink
+              to="/events"
+              className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
+            >
+              <span className="w-5 text-center text-base">⚙️</span>
+              <span>Kelola Events</span>
+            </NavLink>
+          </div>
         )}
       </nav>
 

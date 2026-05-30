@@ -12,6 +12,7 @@ import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
 import Pagination from '../components/ui/Pagination';
 import Modal from '../components/ui/Modal';
+import FileUploadInput from '../components/ui/Fileuploadinput'; // Fix #3
 import { useToast } from '../components/ui/Toast';
 import { formatDate, formatDateTime } from '../utils/formatters';
 
@@ -20,8 +21,9 @@ const TABS = ['Ringkasan', 'Rundown', 'Vendor', 'Tugas', 'Laporan'];
 // Form defaults
 const VENDOR_INIT  = { nama_vendor: '', kategori: '', kontak_person: '', telepon: '', email: '', alamat: '', status: 'aktif', catatan: '' };
 const RUNDOWN_INIT = { urutan: '', waktu_mulai: '', waktu_selesai: '', judul_sesi: '', deskripsi: '', pic_id: '', vendor_id: '', status: 'belum' };
-const TUGAS_INIT   = { judul: '', deskripsi: '', assignee_id: '', divisi: '', prioritas: 'sedang', deadline: '', catatan: '', rundown_id: '' };
-const LAPORAN_INIT = { judul: '', konten: '', tanggal: new Date().toISOString().split('T')[0] };
+const TUGAS_INIT   = { judul: '', deskripsi: '', assignee_id: '', divisi: '', prioritas: 'sedang', deadline: '', catatan: '', rundown_id: '', lampiran_url: '' };
+const LAPORAN_INIT = { judul: '', konten: '', file_url: '', tanggal: new Date().toISOString().split('T')[0] };
+const EVENT_EDIT_INIT = { nama_event: '', deskripsi: '', lokasi: '', tanggal_mulai: '', tanggal_selesai: '', status: 'draft' };
 
 export default function EventDetail() {
   const { id } = useParams();
@@ -49,6 +51,11 @@ export default function EventDetail() {
 
   // Saving flag
   const [saving, setSaving] = useState(false);
+
+  // Fix #4: Edit Event modal
+  const [editEventModal, setEditEventModal] = useState(false);
+  const [editEventForm,  setEditEventForm]  = useState(EVENT_EDIT_INIT);
+  const [deletingEvent,  setDeletingEvent]  = useState(false);
 
   // Vendor modal
   const [vendorModal, setVendorModal] = useState({ open: false, data: null });
@@ -131,8 +138,48 @@ export default function EventDetail() {
       if (tab === 'Laporan') setLaporan(d.laporan   || []);
       setTabMeta(res.data.meta);
     }).catch(console.error).finally(() => setTabLoading(false));
-    // Refresh stats counter
     eventService.getById(id).then(r => setStats(r.data.data.statistics)).catch(() => {});
+  };
+
+  // ─── Fix #4: Edit Event handlers ─────────────────────────
+  const openEditEvent = () => {
+    setEditEventForm({
+      nama_event:      event.nama_event     || '',
+      deskripsi:       event.deskripsi      || '',
+      lokasi:          event.lokasi         || '',
+      tanggal_mulai:   event.tanggal_mulai  || '',
+      tanggal_selesai: event.tanggal_selesai || '',
+      status:          event.status         || 'draft',
+    });
+    setEditEventModal(true);
+  };
+
+  const handleEditEventSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await eventService.update(id, editEventForm);
+      const res = await eventService.getById(id);
+      setEvent(res.data.data.event);
+      setStats(res.data.data.statistics);
+      toast('Event berhasil diupdate!', 'success');
+      setEditEventModal(false);
+    } catch (err) {
+      toast(err.response?.data?.message || 'Gagal update event', 'error');
+    } finally { setSaving(false); }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!confirm(`Hapus event "${event.nama_event}"? Tindakan ini tidak bisa dibatalkan.`)) return;
+    setDeletingEvent(true);
+    try {
+      await eventService.delete(id);
+      toast('Event berhasil dihapus', 'success');
+      navigate('/events');
+    } catch (err) {
+      toast(err.response?.data?.message || 'Gagal hapus event', 'error');
+      setDeletingEvent(false);
+    }
   };
 
   // ─── Vendor handlers ───────────────────────────────────────
@@ -245,6 +292,7 @@ export default function EventDetail() {
         deskripsi:   tugasForm.deskripsi  || null,
         divisi:      tugasForm.divisi     || null,
         catatan:     tugasForm.catatan    || null,
+        lampiran_url: tugasForm.lampiran_url || null, // Fix #3
       };
       await eventService.createTugas(id, payload);
       toast('Tugas berhasil dibuat!', 'success');
@@ -304,7 +352,7 @@ export default function EventDetail() {
           onClick={() => navigate('/events')}
           className="text-sm text-muted hover:text-text-base mb-4 flex items-center gap-1 transition-colors"
         >
-          ← Kembali
+          ← Kembali ke Events
         </button>
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
@@ -318,6 +366,27 @@ export default function EventDetail() {
               <span>👤 {event.ketua?.name}</span>
             </div>
           </div>
+
+          {/* Fix #4: Edit & Delete Event buttons */}
+          {canManage && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={openEditEvent}
+                className="btn-ghost btn-sm flex items-center gap-1.5"
+              >
+                ✏️ Edit Event
+              </button>
+              {isAdmin && (
+                <button
+                  onClick={handleDeleteEvent}
+                  disabled={deletingEvent}
+                  className="px-3 py-1.5 text-xs text-danger hover:bg-danger-bg rounded-lg border border-danger/20 transition-colors disabled:opacity-50"
+                >
+                  {deletingEvent ? 'Menghapus...' : '🗑️ Hapus Event'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -329,13 +398,48 @@ export default function EventDetail() {
             { label: 'Rundown', value: stats.rundowns },
             { label: 'Tugas',   value: stats.tasks    },
           ].map(s => (
-            <div key={s.label} className="glass rounded-lg px-4 py-2 flex items-center gap-2">
+            <div key={s.label} className="bg-surface-2 rounded-xl px-4 py-2 flex items-center gap-2 border border-border-light">
               <span className="text-2xl font-display font-bold text-primary">{s.value}</span>
               <span className="text-sm text-muted">{s.label}</span>
             </div>
           ))}
         </div>
       )}
+
+      {/* Fix #1 & #2: Fitur Realtime — tombol akses langsung */}
+      <div className="bg-surface-2 rounded-2xl border border-border-light p-4">
+        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">⚡ Fitur Koordinasi Realtime</p>
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => navigate(`/chat/${id}`)}
+            className="btn-ghost btn-sm flex items-center gap-1.5 border-accent/30 text-accent hover:bg-accent-bg"
+          >
+            💬 Chat Divisi
+          </button>
+          <button
+            onClick={() => navigate(`/checklist/${id}`)}
+            className="btn-ghost btn-sm flex items-center gap-1.5 border-success/30 text-success hover:bg-success-bg"
+          >
+            ✅ Checklist Realtime
+          </button>
+          {canManage && (
+            <>
+              <button
+                onClick={() => navigate(`/rundown-changes/${id}`)}
+                className="btn-ghost btn-sm flex items-center gap-1.5 border-secondary/30 text-secondary-dark hover:bg-secondary-bg"
+              >
+                🔄 Perubahan Rundown
+              </button>
+              <button
+                onClick={() => navigate(`/koordinasi-log/${id}`)}
+                className="btn-ghost btn-sm flex items-center gap-1.5 border-primary/30 text-primary hover:bg-primary-bg"
+              >
+                📋 Log Koordinasi
+              </button>
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Tabs */}
       <div className="border-b border-white/10">
@@ -367,6 +471,12 @@ export default function EventDetail() {
                 <p className="text-muted text-sm leading-relaxed">
                   {event.deskripsi || 'Tidak ada deskripsi.'}
                 </p>
+                {event.lokasi && (
+                  <div className="mt-4 pt-4 border-t border-border-light">
+                    <p className="text-xs text-muted mb-1">📍 Lokasi</p>
+                    <p className="text-sm text-text-base">{event.lokasi}</p>
+                  </div>
+                )}
               </Card>
             )}
 
@@ -459,6 +569,13 @@ export default function EventDetail() {
                           {v.catatan && (
                             <p className="text-xs text-muted mt-1 line-clamp-1">📝 {v.catatan}</p>
                           )}
+                          {/* Fix #3: tampilkan link kontrak jika ada */}
+                          {v.kontrak_url && (
+                            <a href={v.kontrak_url} target="_blank" rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline mt-1 flex items-center gap-1">
+                              📎 Lihat Kontrak
+                            </a>
+                          )}
                         </div>
                         {canManage && (
                           <div className="flex gap-1 shrink-0">
@@ -513,9 +630,17 @@ export default function EventDetail() {
                           {t.deskripsi && (
                             <p className="text-xs text-muted mt-1 line-clamp-1">{t.deskripsi}</p>
                           )}
+                          {/* Fix #3: tampilkan link lampiran jika ada */}
+                          {t.lampiran_url && (
+                            <a href={t.lampiran_url} target="_blank" rel="noopener noreferrer"
+                              className="text-xs text-primary hover:underline mt-1 flex items-center gap-1">
+                              📎 Lampiran
+                            </a>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          {(isAdmin || user?.id === t.assignee_id) && (
+                          {/* Fix #5: admin & ketua juga bisa update status tugas mereka */}
+                          {(isAdmin || user?.role === 'ketua' || user?.id === t.assignee_id) && (
                             <select
                               value={t.status}
                               onChange={e => handleUpdateTugasStatus(t.id, e.target.value)}
@@ -559,10 +684,17 @@ export default function EventDetail() {
                     <Card key={l.id}>
                       <h3 className="font-medium text-text-base mb-1">{l.judul}</h3>
                       <p className="text-sm text-muted line-clamp-2 mb-2">{l.konten}</p>
-                      <div className="text-xs text-muted flex gap-4">
+                      <div className="text-xs text-muted flex gap-4 flex-wrap">
                         <span>👤 {l.ketua?.name}</span>
                         <span>📅 {formatDate(l.tanggal)}</span>
                       </div>
+                      {/* Fix #3: tampilkan link file laporan jika ada */}
+                      {l.file_url && (
+                        <a href={l.file_url} target="_blank" rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline mt-2 flex items-center gap-1">
+                          📎 Lihat File Laporan
+                        </a>
+                      )}
                     </Card>
                   ))
                 }
@@ -574,6 +706,74 @@ export default function EventDetail() {
       </div>
 
       {/* ═══════ MODALS ═══════════════════════════════════════ */}
+
+      {/* Fix #4: Edit Event Modal */}
+      <Modal
+        open={editEventModal}
+        onClose={() => setEditEventModal(false)}
+        title="Edit Event"
+        size="md"
+      >
+        <form onSubmit={handleEditEventSave} className="space-y-4">
+          <div>
+            <label className="label">Nama Event *</label>
+            <input
+              value={editEventForm.nama_event} required className="input"
+              onChange={e => setEditEventForm(p => ({ ...p, nama_event: e.target.value }))}
+              placeholder="Nama event"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="label">Tanggal Mulai *</label>
+              <input type="date"
+                value={editEventForm.tanggal_mulai} required className="input"
+                onChange={e => setEditEventForm(p => ({ ...p, tanggal_mulai: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="label">Tanggal Selesai *</label>
+              <input type="date"
+                value={editEventForm.tanggal_selesai} required className="input"
+                onChange={e => setEditEventForm(p => ({ ...p, tanggal_selesai: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div>
+            <label className="label">Lokasi</label>
+            <input
+              value={editEventForm.lokasi} className="input"
+              onChange={e => setEditEventForm(p => ({ ...p, lokasi: e.target.value }))}
+              placeholder="Gedung / Kota"
+            />
+          </div>
+          <div>
+            <label className="label">Status</label>
+            <select
+              value={editEventForm.status} className="input"
+              onChange={e => setEditEventForm(p => ({ ...p, status: e.target.value }))}
+            >
+              {['draft','aktif','selesai','batal'].map(s => (
+                <option key={s} value={s}>{s.charAt(0).toUpperCase()+s.slice(1)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="label">Deskripsi</label>
+            <textarea
+              value={editEventForm.deskripsi} rows={3} className="input resize-none"
+              onChange={e => setEditEventForm(p => ({ ...p, deskripsi: e.target.value }))}
+              placeholder="Deskripsi singkat event..."
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setEditEventModal(false)} className="btn-ghost flex-1">Batal</button>
+            <button type="submit" disabled={saving} className="btn-primary flex-1">
+              {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Vendor Modal */}
       <Modal
@@ -642,6 +842,16 @@ export default function EventDetail() {
               value={vendorForm.alamat} className="input"
               onChange={e => setVendorForm(p => ({ ...p, alamat: e.target.value }))}
               placeholder="Alamat lengkap"
+            />
+          </div>
+          {/* Fix #3: File Upload untuk kontrak vendor */}
+          <div>
+            <label className="label">File Kontrak</label>
+            <FileUploadInput
+              value={vendorForm.kontrak_url || ''}
+              onChange={url => setVendorForm(p => ({ ...p, kontrak_url: url }))}
+              folder="kontrak"
+              accept=".pdf,.docx,.xlsx"
             />
           </div>
           <div>
@@ -825,6 +1035,16 @@ export default function EventDetail() {
               placeholder="Catatan tambahan"
             />
           </div>
+          {/* Fix #3: File Upload untuk lampiran tugas */}
+          <div>
+            <label className="label">Lampiran Tugas</label>
+            <FileUploadInput
+              value={tugasForm.lampiran_url}
+              onChange={url => setTugasForm(p => ({ ...p, lampiran_url: url }))}
+              folder="lampiran_tugas"
+              accept=".jpg,.jpeg,.png,.pdf,.docx,.xlsx"
+            />
+          </div>
           <div>
             <label className="label">Terkait Rundown (opsional)</label>
             <select
@@ -875,6 +1095,16 @@ export default function EventDetail() {
               value={laporanForm.konten} required rows={6} className="input resize-none"
               onChange={e => setLaporanForm(p => ({ ...p, konten: e.target.value }))}
               placeholder="Tuliskan isi laporan pelaksanaan event..."
+            />
+          </div>
+          {/* Fix #3: File Upload untuk laporan */}
+          <div>
+            <label className="label">File Laporan (PDF/Dokumen)</label>
+            <FileUploadInput
+              value={laporanForm.file_url}
+              onChange={url => setLaporanForm(p => ({ ...p, file_url: url }))}
+              folder="laporan"
+              accept=".pdf,.docx,.xlsx"
             />
           </div>
           <div className="flex gap-3 pt-2">
